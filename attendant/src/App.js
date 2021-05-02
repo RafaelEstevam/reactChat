@@ -11,7 +11,9 @@ let attendantWebSocket = new AttendantWebSocket();
 function App() {
   
   const [socketId, setSocketId] = useState('');
-  const [isOnline, setIsOnline] = useState(true);
+  const [name, setName] = useState('sara');
+  const [email, setEmail] = useState('sara@sara.com');
+  const [isOnline, setIsOnline] = useState(false);
   const [newClient, setNewClient] = useState([]);
   const [clientsInAttendance, setClientsInAttendance] = useState([]);
   const [rowOfAttendance, setRowOfAttendance] = useState([]);
@@ -21,14 +23,28 @@ function App() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [clientMessage, setClientMessage] = useState('');
+  const [clientDisconnected, setClientDisconnected] = useState('');
+  const [onLineAttendantsList, setOnlineAttendantsList] = useState([]);
+  const [newAttendantOnline, setNewAttendantOnline] = useState('');
+  const [newAttendantOffline, setNewAttendantOffline] = useState('');
 
   const handleGetOnline = () => {
+
+    const attendant = {
+      name, 
+      email,
+      from: attendantWebSocket.id
+    };
+
     if(!isOnline){
       attendantWebSocket.on('connect');
+      attendantWebSocket.emit('i_am_online', attendant);
+      // setNewAttendantOnline(attendant);
       setIsOnline(true);
       setSocketId(attendantWebSocket.id);
     }else{
       attendantWebSocket.off('client_on_row');
+      attendantWebSocket.emit('i_am_offline', attendant);
       setIsOnline(false);
     }
   }
@@ -48,13 +64,10 @@ function App() {
 
   const handleTalk = (client) => {
     //TODO pegar histórico de conversas do cliente
-    // console.log(client);
     setCurrentClientInAttendance(client);
   }
 
   const handleSubmitMessage = (client) => {
-    // console.log(attendantWebSocket.id);
-    // console.log(client);
     const messageToShow = {
       text: message,
       hour: '20:00',
@@ -70,15 +83,23 @@ function App() {
   }
 
   useEffect(() => {
+
+    attendantWebSocket.on('attendant_on_line', (params) => {
+      setNewAttendantOnline(params);
+    })
+
+    attendantWebSocket.on('attendant_off_line', (params) => {
+      setNewAttendantOffline(params);
+    })
+
     if(isOnline){
       attendantWebSocket.on('client_on_row', (params) => { //atualiza os clientes que estão na fila para todos os atendentes
         setNewClient(params)
       });
 
       attendantWebSocket.on('client_get_out', (params) => {
-        console.log('Cliente se desconectou', params);
-      })
-
+        setClientDisconnected(params);
+      });
     }
   }, [isOnline])
 
@@ -108,7 +129,6 @@ function App() {
         attendantWebSocket.emit('refresh_list_of_attendance', (params)); //atualiza a lista de atendimento de todos os atendentes
       };
     });
-
   }, [rowOfAttendance]);
 
   useEffect(() => {
@@ -118,17 +138,51 @@ function App() {
       });
       setRowOfAttendance(refreshRowOfAttendance);
     })
-  }, [lastClientInAttendance])
+  }, [lastClientInAttendance]);
+
+  useEffect(() => {
+    const reloadRowOfAttendance = rowOfAttendance.filter((item) => {
+      return item.from !== clientDisconnected.from;
+    });
+
+    const reloadClientsInAttendance = clientsInAttendance.filter((item) => {
+      return item.from !== clientDisconnected.from;
+    });
+
+    const reloadMyAttendances = myAttendances.filter((item) => {
+      return item.from !== clientDisconnected.from;
+    });
+
+    setRowOfAttendance(reloadRowOfAttendance);
+    setClientsInAttendance(reloadClientsInAttendance);
+    setMyAttendances(reloadMyAttendances);
+    
+  }, [clientDisconnected]);
+
+  useEffect(() => {
+    setOnlineAttendantsList([...onLineAttendantsList, ...[newAttendantOnline]]);
+  }, [newAttendantOnline])
+
+  useEffect(() => {
+    attendantWebSocket.on('attendant_off_line', (params) => {
+      const attendantsOnline = onLineAttendantsList.filter((item) => {
+        return item.from !== params.from;
+      });
+      setOnlineAttendantsList(attendantsOnline);
+    })
+  }, [onLineAttendantsList])
 
   return (
     <div>
       <h1>Chat atendente</h1>
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <input value={email} onChange={(e) => setEmail(e.target.value)} />
       <button onClick={() => handleGetOnline()}>{`Ficar ${isOnline ? 'Offline' : 'Online'}`}</button>
       <button onClick={() => handleCloseSession()}>Encerrar atendimento</button>
       {/* <button onClick={() => handleGetOnline()}>Atualizar fila</button> */}
       <div style={{display: 'flex'}}>
         <div>
-          <h1>Fila</h1>
+          <h3>Fila</h3>
           <ul>
             {rowOfAttendance?.map((item) => (
               <li key={item.from}>
@@ -141,7 +195,7 @@ function App() {
         </div>
 
         <div>
-          <h1>Em atendimento</h1>
+          <h3>Em atendimento</h3>
           <ul>
             {clientsInAttendance?.map((item) => (
               <li key={item.from}>
@@ -153,7 +207,7 @@ function App() {
         </div>
 
         <div>
-          <h1>Meus atendimentos</h1>
+          <h3>Meus atendimentos</h3>
           <ul>
             {myAttendances?.map((item) => (
               <li key={item.from}>
@@ -166,26 +220,41 @@ function App() {
         </div>
       </div>
       <div style={{display: 'flex'}}>
-        <div>
-          <h3>Você está atendendo :</h3>
-          <p>{currentClientInAttendance.name}</p>
-          <p>{currentClientInAttendance.email}</p>
+        <div style={{display: 'flex'}}>
+          <div>
+            <h3>Você está atendendo :</h3>
+            <p>{currentClientInAttendance.name}</p>
+            <p>{currentClientInAttendance.email}</p>
+          </div>
+          <div>
+            <div style={{display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height:'400px', border: '1px solid #ddd'}}>
+              {messages?.map((item) => (
+                <div style={{background: item.isAttendant && '#fc3'}}>
+                  <p>{item.text}</p>
+                  <small>{item.hour}</small>
+                </div>
+              ))}
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column'}}>
+              <textarea rows="8" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Sua mensagem"></textarea>
+              <button onClick={() => handleSubmitMessage(currentClientInAttendance)}>Enviar mensagem</button>
+            </div>
+          </div>
         </div>
         <div>
-          <div style={{display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height:'400px', border: '1px solid #ddd'}}>
-            {messages?.map((item) => (
-              <div style={{background: item.isAttendant && '#fc3'}}>
-                <p>{item.text}</p>
-                <small>{item.hour}</small>
-              </div>
+          <h3>Atendentes online</h3>
+          <ul>
+            {onLineAttendantsList?.map((item) => (
+              <li key={item.from}>
+                <p>{item.name}</p>
+                <p>{item.email}</p>
+                <button onClick={() => handleTalk(item)}>Encaminhar conversa</button>
+              </li>
             ))}
-          </div>
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-            <textarea rows="8" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Sua mensagem"></textarea>
-            <button onClick={() => handleSubmitMessage(currentClientInAttendance)}>Enviar mensagem</button>
-          </div>
+          </ul>
         </div>
       </div>
+      
     </div>
   );
 }
