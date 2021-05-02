@@ -1,10 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import logo from './logo.svg';
 import {AttendantWebSocket} from './websocket/attendant';
-import './App.css';
-
-let socket;
-let clientOnRow = [];
 
 let attendantWebSocket = new AttendantWebSocket(); 
 
@@ -187,6 +182,8 @@ function App() {
     setRowOfAttendance(reloadRowOfAttendance);
     setClientsInAttendance(reloadClientsInAttendance);
     setMyAttendances(reloadMyAttendances);
+    setMessages([]);
+    setCurrentClientInAttendance({});
     
   }, [clientDisconnected]);
 
