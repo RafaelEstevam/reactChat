@@ -73,14 +73,15 @@ function App() {
       <div style={{display: 'flex'}}>
         <div>
           <h3>Você está sendo atendido por:</h3>
-          <p>Rafael Estevam</p>
+          <p>{attendantMessage.name}</p>
+          <p>{attendantMessage.email}</p>
         </div>
         <div>
           <div style={{display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height:'400px', border: '1px solid #ddd'}}> 
             {messages?.map((item) => (
               <div style={{background: item.isAttendant && '#fc3'}}>
                 <p>{item.text}</p>
-                <small>{item.hour}</small>
+                <small>{item.hour} - {item.name}</small>
               </div>
             ))}
           </div>

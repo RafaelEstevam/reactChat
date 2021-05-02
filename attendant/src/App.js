@@ -27,6 +27,7 @@ function App() {
   const [onLineAttendantsList, setOnlineAttendantsList] = useState([]);
   const [newAttendantOnline, setNewAttendantOnline] = useState('');
   const [newAttendantOffline, setNewAttendantOffline] = useState('');
+  const [deliveryAttendant, setDeliveryAttendant] = useState('');
 
   const handleGetOnline = () => {
 
@@ -68,10 +69,13 @@ function App() {
   }
 
   const handleSubmitMessage = (client) => {
+
     const messageToShow = {
       text: message,
       hour: '20:00',
       isAttendant: true,
+      name,
+      email,
       to: client.from,
       from: attendantWebSocket.id
     };
@@ -79,6 +83,33 @@ function App() {
     setMessages([...messages, ...[messageToShow]]);
 
     attendantWebSocket.emit('delivery_message_to_client', messageToShow);
+
+  }
+
+  const handleSubmitClientToAttendant = (client, newAttendant) => {
+
+    const attendantToDeliveryClient = onLineAttendantsList.filter((item) => {
+      return item.name === newAttendant;
+    });
+
+    const refreshMyAttendances = myAttendances.filter((item) => {
+      return item.from !== client.from;
+    });
+
+    const attendant = attendantToDeliveryClient[0];
+
+    const delivery = {
+      client,
+      attendant
+    }
+
+    if(attendant){
+      attendantWebSocket.emit('delivery_to_attendant', (delivery))
+    }
+
+    setMyAttendances(refreshMyAttendances);
+    setCurrentClientInAttendance({});
+    setMessages([]);
 
   }
 
@@ -170,7 +201,14 @@ function App() {
       });
       setOnlineAttendantsList(attendantsOnline);
     })
-  }, [onLineAttendantsList])
+  }, [onLineAttendantsList]);
+
+  useEffect(() => {
+    attendantWebSocket.on('recieve_client', (params) => {
+      console.log(myAttendances)
+      setMyAttendances([...myAttendances, ...[params.client]])
+    });
+  }, [myAttendances])
 
   return (
     <div>
@@ -236,6 +274,17 @@ function App() {
               ))}
             </div>
             <div style={{display: 'flex', flexDirection: 'column'}}>
+              <select value={deliveryAttendant.name} onChange={(e) => setDeliveryAttendant(e.target.value)}>
+                <option>Encaminhar conversa atual:</option>
+                {onLineAttendantsList?.map((item) => (
+                  <>
+                    {item.name !== name &&
+                      <option value={item.name}>{item.name}</option>
+                    }
+                  </>
+                ))}
+              </select>
+              <button onClick={() => handleSubmitClientToAttendant(currentClientInAttendance, deliveryAttendant )}>Encaminhar atendimento</button>
               <textarea rows="8" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Sua mensagem"></textarea>
               <button onClick={() => handleSubmitMessage(currentClientInAttendance)}>Enviar mensagem</button>
             </div>
@@ -248,7 +297,6 @@ function App() {
               <li key={item.from}>
                 <p>{item.name}</p>
                 <p>{item.email}</p>
-                <button onClick={() => handleTalk(item)}>Encaminhar conversa</button>
               </li>
             ))}
           </ul>
