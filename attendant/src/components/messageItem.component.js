@@ -61,7 +61,7 @@ const MessageText = styled('p')`
 `
 
 const MessageHour = styled('small')`
-    color: #858594;
+    color: #54545f;
     font-size: 0.8em;
     font-weight: 600;
     margin-top: 10px;
@@ -127,12 +127,12 @@ function MessageItem ({text, hour, isAttendant, name, email, to, from}){
                     </MessageHour>
                 </MessageContent>
                 {isAttendant ? (
-                    <MessageIcon bgColor={COLORS.mainColor}>
+                    <MessageIcon bgColor={COLORS.textGrayColor}>
                         <PermContactCalendarOutlinedIcon className="main-color" fontSize="large"/>
                     </MessageIcon>
                 ) : (
                     <MessageIcon bgColor={COLORS.lightGrayColor}>
-                        <AccountCircleOutlinedIcon className="light-gray-color" fontSize="large"/>
+                        <AccountCircleOutlinedIcon className="text-gray-color" fontSize="large"/>
                     </MessageIcon>
                 )}
             </MessageContainer>

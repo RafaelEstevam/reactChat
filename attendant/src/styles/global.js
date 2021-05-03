@@ -42,6 +42,7 @@ export default createGlobalStyle`
         --light-gray-color: ${COLORS.lightGrayColor};
         --white-color: ${COLORS.whiteColor};
         --light-color: ${COLORS.lightColor};
+        --text-gray-color: ${COLORS.textGrayColor};
     }
 
     .main-color{color: var(--main-color) !important;}
@@ -53,6 +54,7 @@ export default createGlobalStyle`
     .gray-color{color: var(--gray-color) !important;}
     .white-color{color: var(--white-color) !important;}
     .light-gray-color{color: var(--light-gray-color) !important;}
+    .text-gray-color{color: var(--text-gray-color) !important;}
     .light-color{color: var(--light-color) !important;}
 
     .main-background{background-color: var(--main-color) !important;}
@@ -64,6 +66,7 @@ export default createGlobalStyle`
     .gray-background{background-color: var(--gray-color) !important;}
     .white-background{background-color: var(--white-color) !important;}
     .light-gray-background{background-color: var(--light-gray-color) !important;}
+    .text-gray-background{background-color: var(--text-gray-color) !important;}
     .light-background{background-color: var(--light-color) !important;}
 
 `

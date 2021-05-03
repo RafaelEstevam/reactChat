@@ -29,7 +29,7 @@ const HeaderWrapper = styled('div')`
     justify-content: space-between;
     aling-items: center;
     width: 100%;
-    padding: 15px;
+    padding: 15px 30px;
     height: 85px;
     max-height: 85px;
     min-height: 85px;
@@ -57,6 +57,7 @@ const CustomSubtitle = styled('small')`
 const CustomTitle = styled('p')`
     font-weight: 700;
     font-size: 1em;
+    text-transform: uppercase;
 `
 
 // const CustomTypography = styled(Typography)`
@@ -146,17 +147,17 @@ export default function ChatView(){
                 <HeaderWrapper>
                     <HeaderContent>
                         <CustomTitle className="light-color">
-                            RAFAEL ESTEVAM
+                            Nome do client
                         </CustomTitle>
                         <CustomSubtitle>
-                            Especialista de atendimento
+                            emaildoclient@email.com
                         </CustomSubtitle>
                     </HeaderContent>
                     <HeaderButtons>
-                        <IconButton color="inherit" variant="contained" className="light-gray-color" onClick={handleOpen}>
+                        <IconButton color="inherit" variant="contained" className="text-gray-color" onClick={handleOpen}>
                             <ForwardOutlinedIcon fontSize="large" />
                         </IconButton>
-                        <IconButton variant="contained"  color="inherit" className="light-gray-color" onClick={handleShowClientDetails}>
+                        <IconButton variant="contained"  color="inherit" className="text-gray-color" onClick={handleShowClientDetails}>
                             <PersonOutlineIcon fontSize="large" />
                         </IconButton>
                     </HeaderButtons>
