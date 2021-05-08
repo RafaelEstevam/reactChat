@@ -9,7 +9,7 @@ class AttendantWebSocket {
 
     constructor(){
         this.socket = io(WS);
-        this.socket.on('connect', () => {console.log('Atendente conectado')})
+        this.socket.on('connect', () => {console.log('Atendente conectado')});
         return this.socket;
     }
     
