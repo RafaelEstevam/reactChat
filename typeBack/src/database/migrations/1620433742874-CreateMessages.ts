@@ -14,18 +14,33 @@ export class CreateMessages1620433742874 implements MigrationInterface {
                     },
                     {
                         name: 'name',
-                        type: 'varchar'
+                        type: 'varchar',
+                        isNullable: true,
                     },
                     {
                         name: 'email',
+                        type: 'varchar',
+                        isNullable: true,
+                    },
+                    {
+                        name: 'message',
                         type: 'varchar'
                     },
                     {
-                        name: 'messages',
-                        type: 'varchar'
+                        name: 'user_id',
+                        type: 'uuid'
                     },
                     {
                         name: 'hash_connection',
+                        type: 'varchar',
+                        isNullable: true
+                    },
+                    {
+                        name: 'to',
+                        type: 'varchar'
+                    },
+                    {
+                        name: 'from',
                         type: 'varchar'
                     },
                     {
@@ -41,10 +56,10 @@ export class CreateMessages1620433742874 implements MigrationInterface {
                 ],
                 foreignKeys: [
                     {
-                        name: 'FK_messages_connection',
-                        referencedTableName: 'connections',
-                        referencedColumnNames: ['hash_connection'],
-                        columnNames: ['hash_connection'],
+                        name: 'FK_messages_user',
+                        referencedTableName: 'users',
+                        referencedColumnNames: ['id'],
+                        columnNames: ['user_id'],
                         onDelete: 'SET NULL',
                         onUpdate: 'SET NULL'
                     }

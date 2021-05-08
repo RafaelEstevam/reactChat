@@ -24,7 +24,8 @@ export class CreateConnections1620431114752 implements MigrationInterface {
                         },
                         {
                             name: 'hash_connection',
-                            type: 'varchar'
+                            type: 'varchar',
+                            isNullable: true
                         },
                         {
                             name: 'created_at',
