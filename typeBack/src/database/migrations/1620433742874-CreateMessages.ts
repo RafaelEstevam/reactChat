@@ -28,7 +28,8 @@ export class CreateMessages1620433742874 implements MigrationInterface {
                     },
                     {
                         name: 'user_id',
-                        type: 'uuid'
+                        type: 'uuid',
+                        isNullable: true
                     },
                     {
                         name: 'hash_connection',
@@ -37,7 +38,8 @@ export class CreateMessages1620433742874 implements MigrationInterface {
                     },
                     {
                         name: 'to',
-                        type: 'varchar'
+                        type: 'varchar',
+                        isNullable: true
                     },
                     {
                         name: 'from',

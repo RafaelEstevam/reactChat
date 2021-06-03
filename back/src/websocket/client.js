@@ -6,6 +6,9 @@ io.on('connect', (socket) => {
     });
 
     socket.on('delivery_message_to_client', (params) => {
+
+
+
         io.to(params.to).emit('recieve_message_of_attendant', params);
     });
 

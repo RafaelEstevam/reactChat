@@ -30,7 +30,7 @@ class MessageService{
             to,
             from
         });
-
+        
         await this.messageRepository.save(newMessage);
         return newMessage;
     }

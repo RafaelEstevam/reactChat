@@ -8,7 +8,12 @@ import './database';
 const app = express();
 
 const http = createServer(app);
-const io = new Server(http);
+
+const io = new Server(http, {
+    cors: {
+        origin: '*',
+    }
+});
 
 io.on('connection', (socket: Socket) => {
     console.log('Conectou', socket.id);

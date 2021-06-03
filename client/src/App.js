@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import logo from './logo.svg';
 import {ClientWebSocket} from './websocket/client';
 import './App.css';
+import { v4 as uuid } from 'uuid';
 
 // let socket;
 const clientWebSocket = new ClientWebSocket();
@@ -13,6 +14,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [attendantMessage, setAttendantMessage] = useState({});
   const [dataClient, setDataClient] = useState({});
+  const [hash_connection, setHashConnection] = useState('');
 
   const handleAccessClient = () => {
     const params = {
@@ -25,11 +27,12 @@ function App() {
   }
 
   const handleSubmitMessage = () => {
-    // console.log(attendantWebSocket.id);
-    // console.log(client);
     const messageToShow = {
-      text: message,
-      hour: '20:00',
+      name,
+      email,
+      message,
+      hash_connection,
+      user_id: 'a40997fe-8282-4643-aa69-5dbde70bf540',
       isAttendant: false,
       to: attendantMessage.from,
       from: clientWebSocket.id
@@ -50,6 +53,13 @@ function App() {
     clientWebSocket.on('recieve_message_of_attendant', (params)=>{
       setAttendantMessage(params);
     })
+
+    if(sessionStorage.getItem('hash_connection')){
+      setHashConnection(sessionStorage.getItem('hash_connection'));
+    }else{
+      sessionStorage.setItem('hash_connection', uuid());
+    }
+
   }, []);
 
   useEffect(() => {
@@ -80,7 +90,7 @@ function App() {
           <div style={{display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height:'400px', border: '1px solid #ddd'}}> 
             {messages?.map((item) => (
               <div style={{background: item.isAttendant && '#fc3'}}>
-                <p>{item.text}</p>
+                <p>{item.message}</p>
                 <small>{item.hour} - {item.name}</small>
               </div>
             ))}
