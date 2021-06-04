@@ -61,6 +61,16 @@ class UserService{
         return userFinded;
     }
 
+    async findAll(){
+        const users = await this.userRepository.find();
+
+        if(!users){
+            throw new Error ("Users not found")
+        };
+
+        return users;
+    }
+
     async findById(id:number){
         const userFinded = await this.userRepository.findOne(id);
 

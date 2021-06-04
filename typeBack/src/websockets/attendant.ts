@@ -1,4 +1,5 @@
 import {io} from '../http';
+import {MessageService} from '../services/Message.service';
 
 io.on('connect', (socket) => {
     
@@ -15,6 +16,10 @@ io.on('connect', (socket) => {
     })
 
     socket.on('delivery_message_to_attendant', (params) => {
+        
+        const messageService = new MessageService();
+        messageService.create(params);
+
         io.to(params.to).emit('recieve_message_of_client', params);
     })
 

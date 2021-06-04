@@ -32,6 +32,11 @@ export class CreateMessages1620433742874 implements MigrationInterface {
                         isNullable: true
                     },
                     {
+                        name: 'is_attendant',
+                        type: 'varchar',
+                        isNullable: true
+                    },
+                    {
                         name: 'hash_connection',
                         type: 'varchar',
                         isNullable: true

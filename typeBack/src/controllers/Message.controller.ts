@@ -33,6 +33,17 @@ class MessageController{
         }
     }
 
+    async getMessagesByHashAndUser(request: Request, response: Response){
+        const messageService = new MessageService();
+        const {hash_connection, user_id} = request.body;
+        try{
+            const messages = await messageService.getMessagesByHashAndUser(hash_connection, user_id);
+            return response.json(messages);
+        }catch(error){
+            return response.status(400).json({message: error.message});
+        }
+    }
+
 }
 
 export{MessageController}
