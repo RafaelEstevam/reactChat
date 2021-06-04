@@ -1,13 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import {AttendantWebSocket} from './websocket/attendant';
+import axios from 'axios';
 
 let attendantWebSocket = new AttendantWebSocket(); 
 
 function App() {
   
   const [socketId, setSocketId] = useState('');
-  const [name, setName] = useState('sara');
-  const [email, setEmail] = useState('sara@sara.com');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isOnline, setIsOnline] = useState(false);
   const [newClient, setNewClient] = useState([]);
   const [clientsInAttendance, setClientsInAttendance] = useState([]);
@@ -23,9 +24,10 @@ function App() {
   const [newAttendantOnline, setNewAttendantOnline] = useState('');
   const [newAttendantOffline, setNewAttendantOffline] = useState('');
   const [deliveryAttendant, setDeliveryAttendant] = useState('');
+  const [allAttendants, setAllAttendants] = useState([]);
+  const [userId, setUserId] = useState('');
 
   const handleGetOnline = () => {
-
     const attendant = {
       name, 
       email,
@@ -55,11 +57,34 @@ function App() {
 
   const handleGetClientToAttendance = (params) => {
     attendantWebSocket.emit('get_client', params);
+
+    const attendantData = {
+      name,
+      email,
+      user_id: userId,
+      from: attendantWebSocket.id,
+      to: params.from
+    }
+
+    attendantWebSocket.emit('delivery_attendant_to_client', attendantData)
     handleGethMyClients(params);
   }
 
   const handleTalk = (client) => {
-    //TODO pegar histórico de conversas do cliente
+
+    const data = {
+      hash_connection: client.hash_connection,
+      user_id: userId
+    }
+
+    axios.post(`http://localhost:3000/messages/getMessagesByHashAndUser`, data).then((response)=>{
+      setMessages(response.data);
+    });
+
+    // axios.get(`http://localhost:3000/messages/hash/${client.hash_connection}`).then((response) => {
+    //   setMessages(response.data);
+    // })
+
     setCurrentClientInAttendance(client);
   }
 
@@ -67,20 +92,25 @@ function App() {
 
     const messageToShow = {
       message,
-      hour: '20:00',
-      isAttendant: true,
+      is_attendant: 'true',
       name,
       email,
       to: client.from,
       from: attendantWebSocket.id,
-      user_id: '',
+      user_id: userId,
       hash_connection: client.hash_connection,
     };
 
     setMessages([...messages, ...[messageToShow]]);
 
     attendantWebSocket.emit('delivery_message_to_client', messageToShow);
+  }
 
+  const setAttendant = (attendant) => {
+    const currentAttendant = allAttendants.find((item) => {return item.name == attendant});
+    setEmail(currentAttendant.email);
+    setName(currentAttendant.name);
+    setUserId(currentAttendant.id);
   }
 
   const handleSubmitClientToAttendant = (client, newAttendant) => {
@@ -112,9 +142,9 @@ function App() {
 
   useEffect(() => {
 
-    attendantWebSocket.on('attendant_on_line', (params) => {
-      setNewAttendantOnline(params);
-    })
+    // attendantWebSocket.on('attendant_on_line', (params) => {
+    //   setNewAttendantOnline(params);
+    // })
 
     attendantWebSocket.on('attendant_off_line', (params) => {
       setNewAttendantOffline(params);
@@ -135,10 +165,19 @@ function App() {
     attendantWebSocket.on('recieve_message_of_client', (params)=>{
       setClientMessage(params);
     })
+
+    axios.get(`http://localhost:3000/users/all`).then((response) => {
+      setAllAttendants(response.data);
+    })
+
   }, []);
 
   useEffect(() => {
-    setMessages([...messages, ...[clientMessage]]);
+
+    if(clientMessage.hash_connection === currentClientInAttendance.hash_connection){ //Verifica se as mensagens recebidas são do cliente da conversa atual, se sim, as mensagens são exibidas no quadro
+      setMessages([...messages, ...[clientMessage]]);
+    }
+
   }, [clientMessage])
 
   useEffect(() => {
@@ -154,7 +193,7 @@ function App() {
       if(client){
         setLastClientInAttendance(params);
         setClientsInAttendance([...clientsInAttendance, ...[client]]);
-        attendantWebSocket.emit('refresh_list_of_attendance', (params)); //atualiza a lista de atendimento de todos os atendentes
+        // attendantWebSocket.emit('refresh_list_of_attendance', (params)); //atualiza a lista de atendimento de todos os atendentes
       };
     });
   }, [rowOfAttendance]);
@@ -212,8 +251,16 @@ function App() {
   return (
     <div>
       <h1>Chat atendente</h1>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      {/* <input value={name} onChange={(e) => setName(e.target.value)} />
+      <input value={email} onChange={(e) => setEmail(e.target.value)} /> */}
+      <select value={deliveryAttendant.name} onChange={(e) => setAttendant(e.target.value)}>
+        <option>Selecionar atendente:</option>
+        {allAttendants?.map((item) => (
+          <>
+            <option value={item.name}>{item.name}</option>
+          </>
+        ))}
+      </select>
       <button onClick={() => handleGetOnline()}>{`Ficar ${isOnline ? 'Offline' : 'Online'}`}</button>
       <button onClick={() => handleCloseSession()}>Encerrar atendimento</button>
       {/* <button onClick={() => handleGetOnline()}>Atualizar fila</button> */}
@@ -266,14 +313,14 @@ function App() {
           <div>
             <div style={{display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height:'400px', border: '1px solid #ddd'}}>
               {messages?.map((item) => (
-                <div style={{background: item.isAttendant && '#fc3'}}>
+                <div style={{background: item.is_attendant === 'true' && '#fc3'}}>
                   <p>{item.message}</p>
                   <small>{item.hour}</small>
                 </div>
               ))}
             </div>
             <div style={{display: 'flex', flexDirection: 'column'}}>
-              <select value={deliveryAttendant.name} onChange={(e) => setDeliveryAttendant(e.target.value)}>
+              {/* <select value={deliveryAttendant.name} onChange={(e) => setDeliveryAttendant(e.target.value)}>
                 <option>Encaminhar conversa atual:</option>
                 {onLineAttendantsList?.map((item) => (
                   <>
@@ -283,13 +330,13 @@ function App() {
                   </>
                 ))}
               </select>
-              <button onClick={() => handleSubmitClientToAttendant(currentClientInAttendance, deliveryAttendant )}>Encaminhar atendimento</button>
+              <button onClick={() => handleSubmitClientToAttendant(currentClientInAttendance, deliveryAttendant )}>Encaminhar atendimento</button> */}
               <textarea rows="8" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Sua mensagem"></textarea>
               <button onClick={() => handleSubmitMessage(currentClientInAttendance)}>Enviar mensagem</button>
             </div>
           </div>
         </div>
-        <div>
+        {/* <div>
           <h3>Atendentes online</h3>
           <ul>
             {onLineAttendantsList?.map((item) => (
@@ -299,7 +346,7 @@ function App() {
               </li>
             ))}
           </ul>
-        </div>
+        </div> */}
       </div>
       
     </div>

@@ -44,25 +44,13 @@ const ChatButtons = styled('div')`
     justify-content: space-between;
 `
 
-const mockMessagesList = [
-    {text: 'teste 123', hour: '20:00', to:'ljdsflkja0309#23_', name: 'client', email: 'client@client.com', from: 'jlkj0j223#@3DFAs_', isAttendant: false},
-    {text: 'teste 123', hour: '20:00', to:'ljdsflkja0309#23_', name: 'attendant', email: 'attendant@client.com', from: 'adasdf#@3DFAs_', isAttendant: true},
-    {text: 'teste 123', hour: '20:00', to:'ljdsflkja0309#23_', name: 'attendant', email: 'attendant@client.com', from: 'w2saf#@3DFAs_', isAttendant: true},
-    {text: 'teste 123 asdfad asdf ', hour: '20:00', to:'ljdsflkja0309#23_', name: 'client', email: 'client@client.com', from: 'zxz#@3DFAs_', isAttendant: false},
-    {text: 'teste 123', hour: '20:00', to:'ljdsflkja0309#23_', name: 'attendant', email: 'attendant@client.com', from: 'fgh34fg#@3DFAs_', isAttendant: true},
-    {text: 'teste 123 adfa dsfasdf asdfadf', hour: '20:00', to:'ljdsflkja0309#23_', name: 'attendant', email: 'attendant@client.com', from: 'cbcvb3#@3DFAs_', isAttendant: true},
-    {text: 'teste 123', hour: '20:00', to:'ljdsflkja0309#23_', name: 'client', email: 'client@client.com', from: 'vbc34qfgdfg#@3DFAs_', isAttendant: false},
-    {text: 'teste 123', hour: '20:00', to:'ljdsflkja0309#23_', name: 'client', email: 'client@client.com', from: 'sfdqfdfg2#@3DFAs_', isAttendant: false},
-    {text: 'teste 123', hour: '20:00', to:'ljdsflkja0309#23_', name: 'attendant', email: 'attendant@client.com', from: 'sfdqfdfg2#@3DFAs_', isAttendant: true},
-]
-
 function ChatContainer (){
 
     return (
         <ChatContent>
             <ChatWrapper> 
                 {mockMessagesList.map((item) => (
-                    <MessageItem name={item.name} email={item.email} from={item.from} to={item.to} hour={item.hour} isAttendant={item.isAttendant} text={item.text}/>
+                    <MessageItem name={item.name} email={item.email} from={item.from} to={item.to} hour={item.hour} isAttendant={item.is_attendant} text={item.text}/>
                 ))}
             </ChatWrapper>
             <ChatMessage>
