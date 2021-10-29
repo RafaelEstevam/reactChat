@@ -81,10 +81,6 @@ function App() {
       setMessages(response.data);
     });
 
-    // axios.get(`http://localhost:3000/messages/hash/${client.hash_connection}`).then((response) => {
-    //   setMessages(response.data);
-    // })
-
     setCurrentClientInAttendance(client);
   }
 
