@@ -74,8 +74,10 @@ function App() {
       to: client.from,
       from: attendantWebSocket.id,
       user_id: '',
-      hash_connection: client.hash_connection,
+      hashConnection: client.hashConnection,
     };
+
+    console.log(messageToShow);
 
     setMessages([...messages, ...[messageToShow]]);
 

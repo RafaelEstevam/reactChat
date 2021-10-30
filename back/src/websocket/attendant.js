@@ -1,3 +1,4 @@
+import MessageService from '../services/MessageService';
 import {io} from '../http';
 
 io.on('connect', (socket) => {
@@ -15,6 +16,7 @@ io.on('connect', (socket) => {
     })
 
     socket.on('delivery_message_to_attendant', (params) => {
+        MessageService.PostMessage(params);
         io.to(params.to).emit('recieve_message_of_client', params);
     })
 

@@ -20,7 +20,8 @@ function App() {
     const params = {
       name,
       email,
-      from: clientWebSocket.id
+      from: clientWebSocket.id,
+      hashConnection: hash_connection
     }
     setDataClient(params);
     clientWebSocket.emit('access_client', params);
@@ -31,8 +32,7 @@ function App() {
       name,
       email,
       message,
-      hash_connection,
-      user_id: 'a40997fe-8282-4643-aa69-5dbde70bf540',
+      hashConnection: hash_connection,
       isAttendant: false,
       to: attendantMessage.from,
       from: clientWebSocket.id
@@ -64,7 +64,16 @@ function App() {
 
   useEffect(() => {
     setMessages([...messages, ...[attendantMessage]]);
-  }, [attendantMessage])
+  }, [attendantMessage]);
+
+  useEffect(() => {
+    if(sessionStorage.getItem('hash_connection')){
+      setHashConnection(sessionStorage.getItem('hash_connection'));
+    }else{
+      sessionStorage.setItem('hash_connection', uuid());
+      setHashConnection(sessionStorage.getItem('hash_connection'));
+    }
+  }, [])
 
   return (
     <div>
