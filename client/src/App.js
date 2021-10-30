@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import {ClientWebSocket} from './websocket/client';
 import './App.css';
 import { v4 as uuid } from 'uuid';
+import axios from 'axios';
 
 // let socket;
 const clientWebSocket = new ClientWebSocket();
@@ -15,6 +16,9 @@ function App() {
   const [attendantMessage, setAttendantMessage] = useState({});
   const [dataClient, setDataClient] = useState({});
   const [hash_connection, setHashConnection] = useState('');
+  const [newAttentant, setNewAttendant] = useState('');
+  const [attendantsList, setAttendantsList] = useState([]);
+  const [currentAttendantInTalk, setCurrentAttendantInTalk] = useState({});
 
   const handleAccessClient = () => {
     const params = {
@@ -28,6 +32,7 @@ function App() {
   }
 
   const handleSubmitMessage = () => {
+
     const messageToShow = {
       name,
       email,
@@ -50,8 +55,17 @@ function App() {
   }
 
   useEffect(() => {
+
+    /**
+   * TODO Criar contexto das mensagens do atendente. Cada atendente deve atualizar suas próprias mensagens
+   */
+
     clientWebSocket.on('recieve_message_of_attendant', (params)=>{
       setAttendantMessage(params);
+    })
+
+    clientWebSocket.on('recieve_new_attendant', (params) => {
+      setNewAttendant(params);
     })
 
     if(sessionStorage.getItem('hash_connection')){
@@ -61,6 +75,18 @@ function App() {
     }
 
   }, []);
+
+  const handleTalk = (attendant) => {
+    const data = {
+      hash_connection,
+      user_id: attendant.user_id
+    }
+    axios.post(`http://localhost:3000/messages/getMessagesByHashAndUser`, data).then((response)=>{
+      setMessages(response.data);
+    })
+
+    setCurrentAttendantInTalk(attendant);
+  }
 
   useEffect(() => {
     setMessages([...messages, ...[attendantMessage]]);
@@ -92,13 +118,20 @@ function App() {
       <div style={{display: 'flex'}}>
         <div>
           <h3>Você está sendo atendido por:</h3>
-          <p>{attendantMessage.name}</p>
-          <p>{attendantMessage.email}</p>
+          {/* Fila de atendentes */}
+          {attendantsList?.map((item) => (
+            <>
+              <p>{item.name}</p>
+              <p>{item.email}</p>
+              <button onClick={() => handleTalk(item)}>Conversar</button>
+            </>
+          ))}
+          
         </div>
         <div>
           <div style={{display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height:'400px', border: '1px solid #ddd'}}> 
             {messages?.map((item) => (
-              <div style={{background: item.isAttendant && '#fc3'}}>
+              <div style={{background: item.is_attendant === 'true' && '#fc3'}}>
                 <p>{item.message}</p>
                 <small>{item.hour} - {item.name}</small>
               </div>

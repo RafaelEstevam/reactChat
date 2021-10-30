@@ -28,6 +28,9 @@ class Message{
     hash_connection: string;
 
     @Column()
+    is_attendant: string;
+
+    @Column()
     to: string;
 
     @Column()

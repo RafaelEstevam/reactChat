@@ -14,7 +14,7 @@ const MessageWrapper = styled('div')`
     flex-direction: column;
     border-radius: 10px;
 
-    ${(props) => props.isAttendant ? `
+    ${(props) => props.is_attendant ? `
         background-color: ${COLORS.mainColor};
     ` : `
         background-color: ${COLORS.lightGrayColor}
@@ -22,7 +22,7 @@ const MessageWrapper = styled('div')`
 `
 
 const MessageGrid = styled(Grid)`
-    ${(props) => props.isAttendant ? `
+    ${(props) => props.is_attendant ? `
         justify-content: flex-end;
     ` : `
         justify-content: flex-start;
@@ -33,7 +33,7 @@ const Message = styled('div')`
     display: flex;
     flex-direction: column;
 
-    ${(props) => props.isAttendant ? `
+    ${(props) => props.is_attendant ? `
         align-items: flex-end;
     ` : `
         align-items: flex-start;
@@ -48,7 +48,7 @@ const MessageFlag = styled('div')`
     margin-top: -23px;
     border: 20px solid;
 
-    ${(props) => props.isAttendant ? `
+    ${(props) => props.is_attendant ? `
         border-color: transparent ${COLORS.mainColor} transparent transparent;
     ` : `
         border-color: transparent transparent transparent ${COLORS.lightGrayColor};
@@ -74,7 +74,7 @@ const MessageHour = styled('small')`
 const MessageContent = styled('div')`
     display: flex;
     flex-direction: column;
-    ${(props) => props.isAttendant ? `
+    ${(props) => props.is_attendant ? `
         align-items: flex-end;
     ` : `
         align-items: flex-start;
@@ -86,7 +86,7 @@ const MessageContainer = styled('div')`
     align-items: flex-end;
     margin-bottom: 30px;
 
-    ${(props) => props.isAttendant ? `
+    ${(props) => props.is_attendant ? `
         flex-direction: row;
     ` : `
         flex-direction: row-reverse;
@@ -105,14 +105,14 @@ const MessageIcon = styled('div')`
     margin: 10px;
 `
 
-function MessageItem ({text, hour, isAttendant, name, email, to, from}){
+function MessageItem ({text, hour, is_attendant, name, email, to, from}){
 
     return (
-        <MessageGrid container isAttendant={isAttendant}>
-            <MessageContainer isAttendant={isAttendant}>
-                <MessageContent isAttendant={isAttendant}>
-                    <Message isAttendant={isAttendant}>
-                        <MessageWrapper isAttendant={isAttendant}>
+        <MessageGrid container is_attendant={is_attendant}>
+            <MessageContainer is_attendant={is_attendant}>
+                <MessageContent is_attendant={is_attendant}>
+                    <Message is_attendant={is_attendant}>
+                        <MessageWrapper is_attendant={is_attendant}>
                             <MessageText>
                                 {text}
                             </MessageText>
@@ -120,13 +120,13 @@ function MessageItem ({text, hour, isAttendant, name, email, to, from}){
                                 <AccessTimeOutlinedIcon fontSize="small"/> {hour}
                             </MessageHour>
                         </MessageWrapper>
-                        <MessageFlag isAttendant={isAttendant}/>
+                        <MessageFlag is_attendant={is_attendant}/>
                     </Message>
                     <MessageHour>
                         {name}
                     </MessageHour>
                 </MessageContent>
-                {isAttendant ? (
+                {is_attendant ? (
                     <MessageIcon bgColor={COLORS.textGrayColor}>
                         <PermContactCalendarOutlinedIcon className="main-color" fontSize="large"/>
                     </MessageIcon>

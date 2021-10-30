@@ -15,8 +15,14 @@ class UserController{
         }
     }
 
-    async store(request: Request, response: Response): Promise<Response>{
-        return response.json({message: 'consulta'});
+    async index(request: Request, response: Response): Promise<Response>{
+        const userService = new UserService();
+        try{
+            const users = await userService.findAll();
+            return response.json(users);
+        }catch(error){
+            return response.status(400).json({message: error.message})
+        }
     }
 
     async storeByEmail (request: Request, response: Response): Promise<Response>{
