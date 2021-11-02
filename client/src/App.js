@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
-import {ClientWebSocket} from './websocket/client';
+import { ClientWebSocket } from './websocket/client';
 import './App.css';
 import { v4 as uuid } from 'uuid';
 
@@ -8,6 +8,7 @@ import { v4 as uuid } from 'uuid';
 const clientWebSocket = new ClientWebSocket();
 
 function App() {
+  const [id, setId] = useState(1);
   const [name, setName] = useState('teste');
   const [email, setEmail] = useState('teste@teste.com');
   const [messages, setMessages] = useState([]);
@@ -16,15 +17,18 @@ function App() {
   const [dataClient, setDataClient] = useState({});
   const [hash_connection, setHashConnection] = useState('');
 
-  const handleAccessClient = () => {
+  const handleAccessClient = (clientId) => {
+
     const params = {
+      userId: id,
       name,
       email,
-      from: clientWebSocket.id,
       hashConnection: hash_connection
     }
+
     setDataClient(params);
     clientWebSocket.emit('access_client', params);
+
   }
 
   const handleSubmitMessage = () => {
@@ -45,18 +49,19 @@ function App() {
   }
 
   const handleCloseChat = () => {
-    clientWebSocket.emit('client_disconnect', dataClient);
+    clientWebSocket.emit('client_disconnect', clientWebSocket.id);
     clientWebSocket.close();
   }
 
   useEffect(() => {
-    clientWebSocket.on('recieve_message_of_attendant', (params)=>{
+
+    clientWebSocket.on('recieve_message_of_attendant', (params) => {
       setAttendantMessage(params);
     })
 
-    if(sessionStorage.getItem('hash_connection')){
+    if (sessionStorage.getItem('hash_connection')) {
       setHashConnection(sessionStorage.getItem('hash_connection'));
-    }else{
+    } else {
       sessionStorage.setItem('hash_connection', uuid());
     }
 
@@ -66,10 +71,16 @@ function App() {
     setMessages([...messages, ...[attendantMessage]]);
   }, [attendantMessage]);
 
+  // useEffect(() => {
+  //   if (hash_connection) {
+  //     handleAccessClient(clientWebSocket.id);
+  //   }
+  // }, [hash_connection]);
+
   useEffect(() => {
-    if(sessionStorage.getItem('hash_connection')){
+    if (sessionStorage.getItem('hash_connection')) {
       setHashConnection(sessionStorage.getItem('hash_connection'));
-    }else{
+    } else {
       sessionStorage.setItem('hash_connection', uuid());
       setHashConnection(sessionStorage.getItem('hash_connection'));
     }
@@ -78,10 +89,11 @@ function App() {
   return (
     <div>
       <h1>Chat cliente</h1>
+      <input value={id} onChange={(e) => setId(e.target.value)} />
       <input value={name} onChange={(e) => setName(e.target.value)} />
       <input value={email} onChange={(e) => setEmail(e.target.value)} />
       {/* <button onClick={() => handleConnectChat()}>Conectar</button> */}
-      <button onClick={() => handleAccessClient()}>Solicitar atendimento</button>
+      <button onClick={() => handleAccessClient()}>Conectar</button>
       <button onClick={() => handleCloseChat()}>Encerrar atendimento</button>
 
       <br />
@@ -89,29 +101,29 @@ function App() {
       <br />
       <br />
 
-      <div style={{display: 'flex'}}>
+      <div style={{ display: 'flex' }}>
         <div>
           <h3>Você está sendo atendido por:</h3>
           <p>{attendantMessage.name}</p>
           <p>{attendantMessage.email}</p>
         </div>
         <div>
-          <div style={{display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height:'400px', border: '1px solid #ddd'}}> 
+          <div style={{ display: 'block', maxHeight: '600px', width: '400px', overflowX: 'hidden', overFlowY: 'auto', height: '400px', border: '1px solid #ddd' }}>
             {messages?.map((item) => (
-              <div style={{background: item.isAttendant && '#fc3'}}>
+              <div style={{ background: item.isAttendant && '#fc3' }}>
                 <p>{item.message}</p>
                 <small>{item.hour} - {item.name}</small>
               </div>
             ))}
           </div>
-          <div style={{display: 'flex', flexDirection: 'column'}}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <textarea rows="8" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Sua mensagem"></textarea>
             <button onClick={() => handleSubmitMessage()}>Enviar mensagem</button>
           </div>
         </div>
       </div>
 
-      
+
     </div>
   );
 }

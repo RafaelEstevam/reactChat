@@ -1,9 +1,13 @@
 import MessageService from '../services/MessageService';
+import ConnectionService from '../services/ConnectionService';
+
 import {io} from '../http';
 
 io.on('connect', (socket) => {
 
     socket.on('access_client', (params) => {
+        params.from = socket.id;
+        ConnectionService.PostConnection(params);
         io.emit('client_on_row', params);
     });
 
@@ -13,6 +17,8 @@ io.on('connect', (socket) => {
     });
 
     socket.on('client_disconnect', (params) => {
+
+        ConnectionService.UpdateConnection(params);
 
         io.emit('client_get_out', (params));
 
